@@ -64,46 +64,75 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     else
-    { // This is still the Dispatcher process
-        basimPID = Fork();
-        if (basimPID == 0)
+    {
+        // This is still the Dispatcher process
+        kdcPID = Fork();
+        if (kdcPID == 0)
         {
-            // This is the Basim process
-            // Basim will not use these ends of the pipes, decrement their 'count'
-            close(AtoB_ctrl[WRITE_END]);
-            close(AtoB_data[WRITE_END]);
+            // This is the KDC process.
+            // KDC only uses two pipes
+            close(AtoKDC[WRITE_END]);
+            close(KDCtoA[READ_END]);
+            close(AtoB[READ_END]);
+            close(AtoB[WRITE_END]);
+            close(BtoA[READ_END]);
+            close(BtoA[WRITE_END]);
 
-            // Prepare the file descriptors as args to Basim
-            snprintf(arg1, 20, "%d", AtoB_ctrl[READ_END]);
-            snprintf(arg2, 20, "%d", AtoB_data[READ_END]);
+            // Prepare the file descriptors as args to KDC
+            snprintf(arg1, 20, "%d", AtoKDC[READ_END]);
+            snprintf(arg2, 20, "%d", KDCtoA[WRITE_END]);
 
-            char *cmnd = "./basim/basim";
-            execlp(cmnd, "Basim", arg1, arg2, NULL);
+            // Now, Start KDC
+            char *cmnd = "./kdc/kdc";
+            execlp(cmnd, "KDC", arg1, arg2, NULL);
 
             // the above execlp() only returns if an error occurs
-            perror("ERROR starting Basim");
+            perror("ERROR starting KDC");
             exit(-1);
         }
         else
-        { // This is still the parent Dispatcher  process
-            // close all ends of the pipes so that their 'count' is decremented
-            close(AtoB_ctrl[WRITE_END]);
-            close(AtoB_ctrl[READ_END]);
-            close(AtoB_data[WRITE_END]);
-            close(AtoB_data[READ_END]);
+        {
+            // This is still the Dispatcher process
+            basimPID = Fork();
+            if (basimPID == 0)
+            {
+                // This is the Basim process
+                // Basim will not use these ends of the pipes, decrement their 'count'
+                close(AtoB_ctrl[WRITE_END]);
+                close(AtoB_data[WRITE_END]);
 
-            printf("\n\tDispatcher is now waiting for Amal to terminate\n");
-            int exitStatus;
-            waitpid(amalPID, &exitStatus, 0);
-            printf("\n\tAmal terminated ... ");
-            if (WIFEXITED(exitStatus))
-                printf(" with status =%d\n", WEXITSTATUS(exitStatus));
+                // Prepare the file descriptors as args to Basim
+                snprintf(arg1, 20, "%d", AtoB_ctrl[READ_END]);
+                snprintf(arg2, 20, "%d", AtoB_data[READ_END]);
 
-            printf("\n\tDispatcher is now waiting for Basim to terminate\n");
-            waitpid(basimPID, &exitStatus, 0);
-            printf("\n\tBasim terminated ... ");
-            if (WIFEXITED(exitStatus))
-                printf(" with status =%d\n", WEXITSTATUS(exitStatus));
+                char *cmnd = "./basim/basim";
+                execlp(cmnd, "Basim", arg1, arg2, NULL);
+
+                // the above execlp() only returns if an error occurs
+                perror("ERROR starting Basim");
+                exit(-1);
+            }
+            else
+            { // This is still the parent Dispatcher  process
+                // close all ends of the pipes so that their 'count' is decremented
+                close(AtoB_ctrl[WRITE_END]);
+                close(AtoB_ctrl[READ_END]);
+                close(AtoB_data[WRITE_END]);
+                close(AtoB_data[READ_END]);
+
+                printf("\n\tDispatcher is now waiting for Amal to terminate\n");
+                int exitStatus;
+                waitpid(amalPID, &exitStatus, 0);
+                printf("\n\tAmal terminated ... ");
+                if (WIFEXITED(exitStatus))
+                    printf(" with status =%d\n", WEXITSTATUS(exitStatus));
+
+                printf("\n\tDispatcher is now waiting for Basim to terminate\n");
+                waitpid(basimPID, &exitStatus, 0);
+                printf("\n\tBasim terminated ... ");
+                if (WIFEXITED(exitStatus))
+                    printf(" with status =%d\n", WEXITSTATUS(exitStatus));
+            }
         }
     }
 }
