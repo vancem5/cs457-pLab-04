@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 {
     pid_t amalPID, basimPID, kdcPID;
     int AtoKDC[2], KDCtoA[2], AtoB[2], BtoA[2];
-    char arg1[20], arg2[20];
+    char arg1[20], arg2[20], arg3[20], arg4[20];
 
     Pipe(AtoKDC); // Amal to KDC Pipe
     Pipe(KDCtoA); // KDC to Amal Pipe
