@@ -119,10 +119,14 @@ int main(int argc, char *argv[])
             else
             { // This is still the parent Dispatcher  process
                 // close all ends of the pipes so that their 'count' is decremented
-                close(AtoB_ctrl[WRITE_END]);
-                close(AtoB_ctrl[READ_END]);
-                close(AtoB_data[WRITE_END]);
-                close(AtoB_data[READ_END]);
+                close(AtoKDC[WRITE_END]);
+                close(AtoKDC[READ_END]);
+                close(KDCtoA[WRITE_END]);
+                close(KDCtoA[READ_END]);
+                close(AtoB[WRITE_END]);
+                close(AtoB[READ_END]);
+                close(BtoA[WRITE_END]);
+                close(BtoA[READ_END]);
 
                 printf("\n\tDispatcher is now waiting for Amal to terminate\n");
                 int exitStatus;
@@ -136,6 +140,10 @@ int main(int argc, char *argv[])
                 printf("\n\tBasim terminated ... ");
                 if (WIFEXITED(exitStatus))
                     printf(" with status =%d\n", WEXITSTATUS(exitStatus));
+
+                printf("\n\tDispatcher is now waiting for the KDC to terminate\n");
+                waitpid(kdcPID, &exitStatus, 0);
+                printf("\n\tThe Dispatcher process has terminated\n\n");
             }
         }
     }
