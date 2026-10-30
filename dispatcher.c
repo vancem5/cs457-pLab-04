@@ -38,22 +38,26 @@ int main(int argc, char *argv[])
     printf("\t3) Amal-to-Basim protocol pipe: read=%d  write=%d\n", AtoB[READ_END], AtoB[WRITE_END]);
     printf("\t4) Basim-to-Amal protocol pipe: read=%d  write=%d\n", BtoA[READ_END], BtoA[WRITE_END]);
 
-    // Create both child processes:
+    // Create child processes:
     amalPID = Fork();
     if (amalPID == 0)
     {
         // This is the Amal process.
         // Amal will not use these ends of the pipes, decrement their 'Ref Count'
-        close(AtoB_ctrl[READ_END]);
-        close(AtoB_data[READ_END]);
+        close(AtoKDC[READ_END]);
+        close(KDCtoA[WRITE_END]);
+        close(AtoB[READ_END]);
+        close(BtoA[WRITE_END]);
 
         // Prepare the file descriptors as args to Amal
-        snprintf(arg1, 20, "%d", AtoB_ctrl[WRITE_END]);
-        snprintf(arg2, 20, "%d", AtoB_data[WRITE_END]);
+        snprintf(arg1, 20, "%d", KDCtoA[READ_END]);
+        snprintf(arg2, 20, "%d", AtoKDC[WRITE_END]);
+        snprintf(arg3, 20, "%d", BtoA[READ_END]);
+        snprintf(arg4, 20, "%d", AtoB[WRITE_END]);
 
         // Now, Start Amal
         char *cmnd = "./amal/amal";
-        execlp(cmnd, "Amal", arg1, arg2, NULL);
+        execlp(cmnd, "Amal", arg1, arg2, arg3, arg4, NULL);
 
         // the above execlp() only returns if an error occurs
         perror("ERROR starting Amal");
