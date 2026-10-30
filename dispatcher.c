@@ -98,12 +98,16 @@ int main(int argc, char *argv[])
             {
                 // This is the Basim process
                 // Basim will not use these ends of the pipes, decrement their 'count'
-                close(AtoB_ctrl[WRITE_END]);
-                close(AtoB_data[WRITE_END]);
+                close(AtoKDC[WRITE_END]);
+                close(AtoKDC[READ_END]);
+                close(KDCtoA[WRITE_END]);
+                close(KDCtoA[READ_END]);
+                close(AtoB[WRITE_END]);
+                close(BtoA[READ_END]);
 
                 // Prepare the file descriptors as args to Basim
-                snprintf(arg1, 20, "%d", AtoB_ctrl[READ_END]);
-                snprintf(arg2, 20, "%d", AtoB_data[READ_END]);
+                snprintf(arg1, 20, "%d", AtoB[READ_END]);
+                snprintf(arg2, 20, "%d", BtoA[WRITE_END]);
 
                 char *cmnd = "./basim/basim";
                 execlp(cmnd, "Basim", arg1, arg2, NULL);
