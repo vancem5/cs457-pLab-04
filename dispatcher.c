@@ -32,11 +32,11 @@ int main(int argc, char *argv[])
     Pipe(AtoB);   // Amal to Basim Pipe
     Pipe(BtoA);   // Basim to Amal Pipe
 
-    printf("\tDispatcher started and created these pipes\n");
-    printf("\t1) Amal-to-KDC   protocol pipe: read=%d  write=%d\n", AtoKDC[READ_END], AtoKDC[WRITE_END]);
-    printf("\t2) KDC-to-Amal   protocol pipe: read=%d  write=%d\n", KDCtoA[READ_END], KDCtoA[WRITE_END]);
-    printf("\t3) Amal-to-Basim protocol pipe: read=%d  write=%d\n", AtoB[READ_END], AtoB[WRITE_END]);
-    printf("\t4) Basim-to-Amal protocol pipe: read=%d  write=%d\n", BtoA[READ_END], BtoA[WRITE_END]);
+    printf("\nDispatcher started and created these pipes\n");
+    printf("1) Amal-to-KDC   protocol pipe: read=%d  write=%d\n", AtoKDC[READ_END], AtoKDC[WRITE_END]);
+    printf("2) KDC-to-Amal   protocol pipe: read=%d  write=%d\n", KDCtoA[READ_END], KDCtoA[WRITE_END]);
+    printf("3) Amal-to-Basim protocol pipe: read=%d  write=%d\n", AtoB[READ_END], AtoB[WRITE_END]);
+    printf("4) Basim-to-Amal protocol pipe: read=%d  write=%d\n", BtoA[READ_END], BtoA[WRITE_END]);
 
     // Create child processes:
     amalPID = Fork();
@@ -128,22 +128,17 @@ int main(int argc, char *argv[])
                 close(BtoA[WRITE_END]);
                 close(BtoA[READ_END]);
 
-                printf("\n\tDispatcher is now waiting for Amal to terminate\n");
+                printf("\nDispatcher is now waiting for Amal to terminate\n");
                 int exitStatus;
                 waitpid(amalPID, &exitStatus, 0);
-                printf("\n\tAmal terminated ... ");
-                if (WIFEXITED(exitStatus))
-                    printf(" with status =%d\n", WEXITSTATUS(exitStatus));
 
-                printf("\n\tDispatcher is now waiting for Basim to terminate\n");
+                printf("\nDispatcher is now waiting for Basim to terminate\n");
                 waitpid(basimPID, &exitStatus, 0);
-                printf("\n\tBasim terminated ... ");
-                if (WIFEXITED(exitStatus))
-                    printf(" with status =%d\n", WEXITSTATUS(exitStatus));
 
-                printf("\n\tDispatcher is now waiting for the KDC to terminate\n");
+                printf("\nDispatcher is now waiting for the KDC to terminate\n");
                 waitpid(kdcPID, &exitStatus, 0);
-                printf("\n\tThe Dispatcher process has terminated\n\n");
+
+                printf("\nThe Dispatcher process has terminated\n\n");
             }
         }
     }
